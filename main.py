@@ -75,7 +75,7 @@ def get_yes_or_no_files_from_user():
 
 def get_width_from_user():
     print("Please input the width you want your image to have in pixel")
-    print("Example: 1000")
+    print("Example: 1000 is nice and crisp.")
 
     # gets the input from the user
     try:
