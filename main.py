@@ -1,5 +1,5 @@
 import os
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 color_meaning = {
     "5e5bc5": "Bridge",
@@ -73,24 +73,39 @@ def get_yes_or_no_files_from_user():
         return "n"
 
 
+def get_width_from_user():
+    print("Please input the width you want your image to have in pixel")
+    print("Example: 1000")
+
+    # gets the input from the user
+    try:
+        s = int(input())
+        return s
+    except:
+        print("Invalid input. Try again")
+        return get_width_from_user()
+
+
 def draw_text(x, y, text, d):
+    font = font = ImageFont.truetype("arialbd.ttf", fontsize)
+
     # set the colors for text and outline
     shadow_color = (255, 255, 255)
     text_color = (000, 000, 000)
 
     # border
-    d.text((x - 1, y - 1), text, fill=shadow_color)
-    d.text((x + 1, y - 1), text, fill=shadow_color)
-    d.text((x - 1, y + 1), text, fill=shadow_color)
-    d.text((x + 1, y + 1), text, fill=shadow_color)
+    d.text((x - shadow, y - shadow), text, font=font, fill=shadow_color)
+    d.text((x + shadow, y - shadow), text, font=font, fill=shadow_color)
+    d.text((x - shadow, y + shadow), text, font=font, fill=shadow_color)
+    d.text((x + shadow, y + shadow), text, font=font, fill=shadow_color)
 
     # now draw the text over it
-    d.text((x, y), text, fill=text_color)
+    d.text((x, y), text, font=font, fill=text_color)
 
 
 def draw_box(x, y, color, d):
     # draw a rectangle x and y mark the starting coordinates
-    d.rectangle([(x, y), (x + 100, y + 30)], fill="#" + color)
+    d.rectangle([(x, y), (x + width, y + height)], fill="#" + color)
 
 
 def get_list_of_text_names(path):
@@ -133,47 +148,50 @@ def generate_image(path):
     width_n = int((i/3)*2)
     length_n = int((1/3))
     """
-    img = Image.new('RGB', (100, (30 + (30 * ( i - 1)))), color=(000, 000, 000))
+    img = Image.new('RGB', (width, (height + (height * (i - 1)))), color=(000, 000, 000))
 
     count = 1
     for j in color_list:
         try:
             d = ImageDraw.Draw(img)
-            draw_box(0, (0 + (30 * (count - 1))), j, d)
-            draw_text(10, (10 + (30 * (count - 1))), color_meaning.get(j), d)
+            draw_box(0, (0 + (height * (count - 1))), j, d)
+            draw_text(text_distance, (text_distance + (height * (count - 1))), color_meaning.get(j), d)
             count = count + 1
             img.save(path[:-4] + "_legend.png")
         except:
             try:
                 d = ImageDraw.Draw(img)
-                draw_box(0, (0 + (30 * (count - 1))), j, d)
-                draw_text(2, (10 + (30 * (count - 1))), "unknown: #" + j, d)
+                draw_box(0, (0 + (height * (count - 1))), j, d)
+                draw_text(2, (text_distance + (height * (count - 1))), "unknown: #" + j, d)
                 count = count + 1
                 img.save(path[:-4] + "_legend.png")
             except:
                 try:
                     d = ImageDraw.Draw(img)
-                    draw_box(0, (0 + (30 * (count - 1))), j, d)
-                    draw_text(2, (10 + (30 * (count - 1))), "unknown: #" + j, d)
+                    draw_box(0, (0 + (height * (count - 1))), j, d)
+                    draw_text(2, (text_distance + (height * (count - 1))), "unknown: #" + j, d)
                     count = count + 1
                     img.save(path[:-4] + "_legend.png")
                 except:
                     d = ImageDraw.Draw(img)
-                    draw_box(0, (0 + 30), "FFFFFF", d)
-                    draw_text(2, (10 + 30), "unknown: #" + j, d)
+                    draw_box(0, (0 + height), "FFFFFF", d)
+                    draw_text(2, (text_distance + height), "unknown: #" + j, d)
                     count = count + 1
                     img.save(path[:-4] + "_legend.png")
 
 
 if __name__ == '__main__':
 
-    width = 100
-    height = 30
-
-
+    width = get_width_from_user()
+    height = int(width / (100 / 30))
+    text_distance = width / 10
+    fontsize = int(width / 10)
+    shadow = width / 250
 
     my_path = get_path_from_user()
+
     yes_or_no_files = get_yes_or_no_files_from_user()
+
     if yes_or_no_files == "y":
         for subdir, dirs, files in os.walk(my_path):
             generate_list_of_images(subdir + os.sep, get_list_of_text_names(subdir + os.sep))
